@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevTeste dos Mecatrônicos</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700;800&family=Source+Serif+4:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --accent: #8f25d6;
+    --accent-light: #f0e6f9;       /* ✅ corrigido: era verde, agora combina com o roxo */
+    --accent-dark: #76159c;        /* ✅ removida a opacidade inline */
+    --text: #11110d;
+    --muted: #5a5958;              /* ✅ corrigido: era quase igual ao --text, agora é cinza legível */
+    --border: #d4b0f0;             /* ✅ suavizado para não ficar muito pesado */
+    --border-strong: #6d09a7;
+    --bg: #f5f4f0;
+    --card-bg: #fcfcfc;
+  }
+
+  body {
+    font-family: 'Source Serif 4', Georgia, serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  /* ── Cabeçalho ── */
+  header {
+    background: var(--text);
+    color: #fff;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .header-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 4rem 1.25rem 3rem;
+    position: relative;
+    z-index: 2;
+  }
+
+  .header-tag {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .header-tag::before {
+    content: '';
+    display: block;
+    width: 32px;
+    height: 2px;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.75rem, 6vw, 3.8rem);
+    font-weight: 800;
+    line-height: 1.1;
+    color: #fff;
+    max-width: 700px;
+    margin-bottom: 1.25rem;
+    word-break: break-word;
+  }
+
+  .header-subtitle {
+    font-size: clamp(0.9rem, 2.5vw, 1.05rem);
+    color: rgba(255,255,255,0.80); /* ✅ melhorado de 0.65 para 0.80 — melhor contraste WCAG */
+    max-width: 540px;
+    font-weight: 300;
+  }
+
+  /* ✅ Círculos decorativos agora usam cor roxa (alinhada com --accent) */
+  .header-deco {
+    position: absolute;
+    right: -80px;
+    top: -60px;
+    width: 320px;
+    height: 320px;
+    border-radius: 50%;
+    border: 50px solid rgba(143,37,214,0.15);
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .header-deco2 {
+    position: absolute;
+    right: 80px;
+    bottom: -80px;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    border: 25px solid rgba(143,37,214,0.10);
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  /* ── META ROW ── */
+  .meta-row {
+    background: var(--accent-light);
+    border-bottom: 1px solid #d4b0f0;
+    overflow: hidden;
+  }
+
+  .meta-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0.75rem 1.25rem;
+    display: flex;
+    gap: 1rem 1.5rem;
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    color: var(--accent-dark);
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+
+  /* ── MAIN ── */
+  main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2.5rem 1.25rem 4rem;
+  }
+
+  /* ── Bloco de introdução ── */
+  .intro-block {
+    border-left: 3px solid var(--accent);
+    padding: 1.25rem 1.5rem;
+    background: var(--card-bg);
+    margin-bottom: 3rem;
+    border-radius: 0 8px 8px 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+
+  .intro-block p {
+    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+    color: var(--text);
+    font-style: italic;
+    font-weight: 300;
+  }
+
+  /* ── Filtros ── */
+  .filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    align-items: center;
+  }
+
+  .filter-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-right: 0.25rem;
+  }
+
+  .filter-btn {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 100px;
+    border: 1px solid var(--border-strong);
+    background: transparent;
+    color: var(--accent-dark);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .filter-btn:hover,
+  .filter-btn.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  /* ── Seção de rótulos ── */
+  .section-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── Linha do tempo ── */
+  .timeline {
+    position: relative;
+    padding-left: 0;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 28px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--accent), var(--border) 80%);
+  }
+
+  /* ✅ Animação de entrada ao rolar */
+  .timeline-item {
+    position: relative;
+    padding: 0 0 2.25rem 72px;
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+
+  .timeline-item.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .timeline-item:last-child {
+    padding-bottom: 0;
+  }
+
+  .timeline-dot {
+    position: absolute;
+    left: 18px;
+    top: 4px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--card-bg);
+    border: 2px solid var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+  }
+
+  .timeline-dot-inner {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .timeline-dot.highlight {
+    background: var(--accent);
+    border-color: var(--accent-dark);
+    width: 26px;
+    height: 26px;
+    left: 16px;
+  }
+
+  .timeline-dot.highlight .timeline-dot-inner {
+    background: #fff;
+    width: 10px;
+    height: 10px;
+  }
+
+  /* ── Cartões ── */
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem 1.4rem;
+    transition: box-shadow 0.2s;
+    cursor: pointer;
+  }
+
+  .card:hover {
+    box-shadow: 0 4px 16px rgba(143,37,214,0.10);
+  }
+
+  /* ✅ featured usa variável em vez de cor hardcoded */
+  .card.featured {
+    border-color: var(--accent);
+    border-width: 2px;
+    background: var(--accent-light);
+  }
+
+  .card-range {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  .card h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(0.95rem, 3vw, 1.1rem);
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.65rem;
+    line-height: 1.3;
+    word-break: break-word;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  /* ✅ Seta de accordion */
+  .card h2 .toggle-icon {
+    font-size: 14px;
+    color: var(--accent);
+    flex-shrink: 0;
+    margin-top: 2px;
+    transition: transform 0.25s;
+    user-select: none;
+  }
+
+  .card.open h2 .toggle-icon {
+    transform: rotate(180deg);
+  }
+
+  /* ✅ Corpo do card recolhível */
+  .card-body {
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.35s ease, opacity 0.3s ease;
+  }
+
+  .card.open .card-body {
+    max-height: 300px;
+    opacity: 1;
+  }
+
+  .card p {
+    font-size: clamp(0.85rem, 2.5vw, 0.95rem);
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  .card-badge {
+    display: inline-block;
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 100px;
+    margin-bottom: 0.65rem;
+  }
+
+  .badge-warn    { background: #FAEEDA; color: #854F0B; }
+  .badge-success { background: var(--accent-light); color: var(--accent-dark); }
+  .badge-neutral { background: #F1EFE8; color: #5F5E5A; }
+  .badge-info    { background: #E6F1FB; color: #0C447C; }
+
+  /* ── conclusão ── */
+  .conclusion-block {
+    margin-top: 3.5rem;
+    background: var(--text);
+    color: #fff;
+    border-radius: 12px;
+    padding: 2rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .conclusion-block::before {
+    content: '';
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    border: 30px solid rgba(143,37,214,0.25); /* ✅ cor roxa, alinhada */
+    pointer-events: none;
+  }
+
+  .conclusion-block h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.2rem, 4vw, 1.5rem);
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .conclusion-block p {
+    color: rgba(255,255,255,0.80); /* ✅ melhorado de 0.75 */
+    font-size: clamp(0.9rem, 2.5vw, 1rem);
+    font-weight: 300;
+    max-width: 580px;
+    position: relative;
+    z-index: 1;
+    line-height: 1.7;
+  }
+
+  .conclusion-accent {
+    color: var(--accent);
+    font-weight: 400;
+  }
+
+  /* ── rodapé ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 1.5rem 1.25rem;
+    text-align: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    color: #4a0553;
+    letter-spacing: 0.05em;
+    
+  }
+
+  footer {
+  text-shadow: 
+    0 0 5px #e206ff,
+    0 0 10px #e206ff,
+    0 0 20px #e206ff;
+}
+
+.glow-link {
+  color: var(--accent);
+  text-decoration: none;
+  text-shadow:
+    0 0 5px var(--accent),
+    0 0 10px var(--accent);
+}
+
+  /* ── Responsivo: TABLET (≤ 700px) ── */
+  @media (max-width: 700px) {
+    .header-inner { padding: 3rem 1.25rem 2.5rem; }
+    .header-deco { width: 200px; height: 200px; right: -50px; top: -40px; border-width: 35px; }
+    .header-deco2 { display: none; }
+    main { padding: 2rem 1.25rem 3.5rem; }
+    .conclusion-block { padding: 1.75rem 1.25rem; }
+  }
+
+  /* ── Responsivo: Celular (≤ 480px) ── */
+  @media (max-width: 480px) {
+    .header-inner { padding: 2.5rem 1rem 2rem; }
+    .header-deco { display: none; }
+    .meta-inner { gap: 0.6rem 1rem; padding: 0.65rem 1rem; }
+    main { padding: 1.75rem 1rem 3rem; }
+    .timeline::before { left: 14px; }
+    .timeline-item { padding-left: 44px; }
+    .timeline-dot { left: 4px; width: 20px; height: 20px; }
+    .timeline-dot-inner { width: 7px; height: 7px; }
+    .timeline-dot.highlight { left: 2px; width: 24px; height: 24px; }
+    .card { padding: 1rem 1.1rem; }
+    .intro-block { padding: 1rem 1.1rem; }
+    .conclusion-block { padding: 1.5rem 1rem; }
+    .conclusion-block::before { width: 100px; height: 100px; top: -25px; right: -25px; border-width: 20px; }
+  }
+
+  /* ✅ Estado oculto para filtros */
+  .timeline-item[hidden] {
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-deco" aria-hidden="true"></div>
+  <div class="header-deco2" aria-hidden="true"></div>
+  <div class="header-inner">
+    <div class="header-tag">Equipe Mecatrônicos</div>
+    <h1>DevTeste dos Mecatrônicos</h1>
+    <p class="header-subtitle">
+      Uma jornada com diversos testes — da teoria ao funcionamento confiável em competição.
+    </p>
+  </div>
+</header>
+
+<div class="meta-row">
+  <div class="meta-inner">
+    <!-- ✅ ícones decorativos marcados como aria-hidden -->
+    <span class="meta-item"><span aria-hidden="true">&#9654;</span> 60 testes documentados</span>
+    <span class="meta-item"><span aria-hidden="true">&#9654;</span> Arduino &amp; Servos</span>
+    <span class="meta-item"><span aria-hidden="true">&#9654;</span> Robocopa</span>
+    <span class="meta-item">
+  <span aria-hidden="true">&#9654;</span> 
+  <a href="https://www.instagram.com/institutotaua?igsh=bmVlYTVuMGwxcjVi" target="_blank" class="glow-link">
+    Instituto Tauá
+  </a>
+</span>
+
+<span class="meta-item">
+  <span aria-hidden="true">&#9654;</span> 
+  <a href="https://www.instagram.com/fx4brasil?igsh=MXByaGJ4aXJ1djhkeQ==" target="_blank" class="glow-link">
+    FX4
+  </a>
+</span>
+  </div>
+</div>
+
+<main>
+
+  <div class="intro-block">
+    <p>O DevTeste da automação teve início com uma base teórica, envolvendo análise e estudo dos códigos utilizados. Buscamos compreender sua estrutura, lógica e funcionamento — realizando testes mentais que contribuíram para o desenvolvimento do raciocínio lógico e entendimento do sistema.</p>
+  </div>
+
+  <!-- ✅ Barra de filtros -->
+  <div class="filter-bar" role="group" aria-label="Filtrar testes por categoria">
+    <span class="filter-label">Filtrar:</span>
+    <button class="filter-btn active" data-filter="all">Todos</button>
+    <button class="filter-btn" data-filter="badge-success">Sucessos</button>
+    <button class="filter-btn" data-filter="badge-warn">Dificuldades</button>
+    <button class="filter-btn" data-filter="badge-info">Informativo</button>
+    <button class="filter-btn" data-filter="badge-neutral">Neutro</button>
+  </div>
+
+  <div class="section-label">Linha do tempo dos testes</div>
+
+  <!-- ✅ role="list" para acessibilidade -->
+  <div class="timeline" role="list">
+
+    <div class="timeline-item" role="listitem" data-badge="badge-info">
+      <div class="timeline-dot"><div class="timeline-dot-inner"></div></div>
+      <div class="card" tabindex="0" aria-expanded="false">
+        <div class="card-badge badge-info">Primeira robocopa Instituto Tauá - Maio 2025</div>
+        <div class="card-range">Testes 0 – 5</div>
+        <h2>Adaptação do controle para celular <span class="toggle-icon" aria-hidden="true">▾</span></h2>
+        <div class="card-body">
+          <p>Dois programadores atuaram simultaneamente: um analisava e outro implementava melhorias. Houve uma interpretação equivocada que nos levou a acreditar que apenas o celular poderia ser utilizado.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="timeline-item" role="listitem" data-badge="badge-warn">
+      <div class="timeline-dot"><div class="timeline-dot-inner"></div></div>
+      <div class="card" tabindex="0" aria-expanded="false">
+        <div class="card-badge badge-warn">Falhas identificadas</div>
+        <div class="card-range">Testes 1 – 5</div>
+        <h2>Primeiros testes práticos e verificação de falhas <span class="toggle-icon" aria-hidden="true">▾</span></h2>
+        <div class="card-body">
+          <p>Verificamos falhas no envio de sinais e resposta do controle. O sistema não respondia de forma consistente, evidenciando problemas iniciais que precisavam ser investigados.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="timeline-item" role="listitem" data-badge="badge-neutral">
+      <div class="timeline-dot"><div class="timeline-dot-inner"></div></div>
+      <div class="card" tabindex="0" aria-expanded="false">
+        <div class="card-badge badge-neutral">Melhorias de conexão</div>
+        <div class="card-range">Testes 5 – 10</div>
+        <h2>Sistema mais robusto e foco em problemas específicos <span class="toggle-icon" aria-hidden="true">▾</span></h2>
+        <div class="card-body">
+          <p>Realizamos melhorias no sistema e na conexão com o celular. Testes foram direcionados a problemas específicos como falhas de conexão e movimentos irregulares.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="timeline-item" role="listitem" data-badge="badge-info">
+      <div class="timeline-dot"><div class="timeline-dot-inner"></div></div>
+      <div class="card" tabindex="0" aria-expanded="false">
+        <div class="card-badge badge-info">Debug no Arduino IDE</div>
+        <div class="card-range">Testes 10 – 15</div>
+        <h2>Ferramentas de debug e testes simultâneos <span class="toggle-icon" aria-hidden="true">▾</span></h2>
+        <div class="card-body">
+          <p>Utilizamos ferramentas de debug no Arduino IDE para identificar erros. Testes simultâneos em múltiplos robôs permitiram identificar inconsistências no comportamento do sistema.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="timeline-item" role="listitem" data-badge="badge-success">
+      <div class="timeline-dot"><div class="timeline-dot-inner"></div></div>
+      <div class="card" tabindex="0" aria-expanded="false">
+        <div class="card-badge badge-success">Progresso visível</div>
+        <div class="card-range">Testes 15 – 20</div>
+        <h2>Correções começam a surtir efeito <span class="toggle-icon" aria-hidden="true">▾</span></h2>
+        <div class="card-body">
+          <p>As correções começaram a surtir efeito, com melhora na estabilidade da movimentação — apesar de falhas ocasionais ainda ocorrerem durante os testes.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="timeline-item" role="listitem" data-badge="badge-success">
+      <div class="timeline-dot"><div class="timeline-dot-inner"></div></div>
+      <div class="card" tabindex="0" aria-expanded="false">
+        <div class="card-badge badge-success">Modo autônomo</div>
+        <div class="card-range">Testes 20 – 25</div>
+        <h2>Controle estabilizado e início do modo autônomo <span class="toggle-icon" aria-hidden="true">▾</span></h2>
+        <div class="card-body">
+          <p>O controle foi estabilizado e iniciamos o uso do modo autônomo. O foco passou para a implementação dos servos, nova etapa crítica do projeto.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="timeline-item" role="listitem" data-badge="badge-warn">
+      <div class="timeline-dot"><div class="timeline-dot-inner"></div></div>
+      <div class="card" tabindex="0" aria-expanded="false">
+        <div class="card-badge badge-warn">Dificuldades técnicas</div>
+        <div class="card-range">Testes 25 – 30</div>
+        <h2>Interrupção para estudo técnico dos servos <span class="toggle-icon" aria-hidden="true">▾</span></h2>
+        <div class="card-body">
+          <p>Dificuldades com os servos impediram o funcionamento adequado. Foi necessário interromper os testes para dedicar tempo a estudo técnico aprofundado.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="timeline-item" role="listitem" data-badge="badge-neutral">
+      <div class="timeline-dot"><div class="timeline-dot-inner"></div></div>
+      <div class="card" tabindex="0" aria-expanded="false">
+        <div class="card-badge badge-neutral">Resiliência</div>
+        <div class="card-range">Testes 30 – 35</div>
+        <h2>Aprimoramento contínuo mesmo sob dificuldades <span class="toggle-icon" aria-hidden="true">▾</span></h2>
+        <div class="card-body">
+          <p>Mesmo com dificuldades persistentes, continuamos aprimorando o código e preparando soluções técnicas para os desafios encontrados.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="timeline-item" role="listitem" data-badge="badge-warn">
+      <div class="timeline-dot highlight"><div class="timeline-dot-inner"></div></div>
+      <div class="card featured" tabindex="0" aria-expanded="false">
+        <div class="card-badge badge-warn">Robocopa dos campeões - Agosto 2025</div>
+        <div class="card-range">Testes 35 – 40</div>
+        <h2>Funcionamento parcial em competição (80%) <span class="toggle-icon" aria-hidden="true">▾</span></h2>
+        <div class="card-body">
+          <p>O robô apresentou funcionamento parcial em torno de 80%, com inconsistências na movimentação e falhas mecânicas durante a Robocopa — evento decisivo da temporada.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="timeline-item" role="listitem" data-badge="badge-info">
+      <div class="timeline-dot"><div class="timeline-dot-inner"></div></div>
+      <div class="card" tabindex="0" aria-expanded="false">
+        <div class="card-badge badge-info">Diagnóstico confirmado</div>
+        <div class="card-range">Testes 40 – 45</div>
+        <h2>Problema identificado: defeito interno nos servos <span class="toggle-icon" aria-hidden="true">▾</span></h2>
+        <div class="card-body">
+          <p>Identificamos que o problema estava nos próprios servos — um defeito interno —, e não na programação. Isso redirecionou os esforços da equipe para a solução correta.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="timeline-item" role="listitem" data-badge="badge-success">
+      <div class="timeline-dot"><div class="timeline-dot-inner"></div></div>
+      <div class="card" tabindex="0" aria-expanded="false">
+        <div class="card-badge badge-success">Virada de chave</div>
+        <div class="card-range">Testes 45 – 50</div>
+        <h2>Novos servos — sistema funcionando corretamente <span class="toggle-icon" aria-hidden="true">▾</span></h2>
+        <div class="card-body">
+          <p>Com novos servos instalados, o sistema passou a funcionar corretamente, com melhor resposta e controle. Uma das fases mais satisfatórias do processo.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="timeline-item" role="listitem" data-badge="badge-success">
+      <div class="timeline-dot"><div class="timeline-dot-inner"></div></div>
+      <div class="card" tabindex="0" aria-expanded="false">
+        <div class="card-badge badge-success">Refinamento</div>
+        <div class="card-range">Testes 50 – 55</div>
+        <h2>Integração com o piloto e melhora de desempenho <span class="toggle-icon" aria-hidden="true">▾</span></h2>
+        <div class="card-body">
+          <p>A movimentação foi refinada e integrada ao piloto, melhorando o desempenho geral do sistema e preparando o robô para as fases finais.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="timeline-item" role="listitem" data-badge="badge-success">
+      <div class="timeline-dot highlight"><div class="timeline-dot-inner"></div></div>
+      <!-- ✅ bug corrigido: era <p><p>...</p></p> -->
+      <div class="card featured" tabindex="0" aria-expanded="false">
+        <div class="card-badge badge-success">Ajustes finais</div>
+        <div class="card-range">Testes 55 – 60</div>
+        <h2>Ajustes finais e desempenho em competição <span class="toggle-icon" aria-hidden="true">▾</span></h2>
+        <div class="card-body">
+          <p>Na fase final, ajustes foram feitos rapidamente, garantindo melhor desempenho durante a competição e consolidando todo o aprendizado acumulado ao longo da temporada. Como observação, um dos ajustes finais mais notórios foi a movimentação dos servos por meio do analógico direito do controle — um exemplo prático de que o estudo contínuo leva sempre a novas descobertas.</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /.timeline -->
+
+  <div class="conclusion-block">
+    <h2>Conclusão</h2>
+    <p>O processo de testes demonstrou <span class="conclusion-accent">evolução contínua</span>, superação de desafios técnicos e o desenvolvimento de um sistema funcional e confiável — resultado do esforço coletivo da equipe ao longo de 60 testes documentados.</p>
+  </div>
+
+</main>
+
+<footer>
+  DevTeste dos Mecatrônicos &mdash; Equipe de Robótica<br>
+  Mande sua sugestão para novos posts!!<br>
+   <a href="https://www.instagram.com/mecatronicoss?igsh=MWN4eHNnOHpxb21xcQ==" target="_blank">
+    @mecatronicoss
+  </a>
+</footer>
+
+<script>
+  // ✅ Accordion: abrir/fechar cards ao clicar
+  document.querySelectorAll('.card').forEach(card => {
+    function toggleCard() {
+      const isOpen = card.classList.contains('open');
+      card.classList.toggle('open', !isOpen);
+      card.setAttribute('aria-expanded', String(!isOpen));
+    }
+    card.addEventListener('click', toggleCard);
+    card.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleCard(); }
+    });
+  });
+
+  // ✅ Filtros por categoria de badge
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const filter = btn.dataset.filter;
+      document.querySelectorAll('.timeline-item').forEach(item => {
+        if (filter === 'all' || item.dataset.badge === filter) {
+          item.removeAttribute('hidden');
+        } else {
+          item.setAttribute('hidden', '');
+        }
+      });
+    });
+  });
+
+  // ✅ Animação de entrada com IntersectionObserver
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.timeline-item').forEach((item, i) => {
+    item.style.transitionDelay = `${i * 40}ms`;
+    observer.observe(item);
+  });
+</script>
+
+</body>
+</html>
